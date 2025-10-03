@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KitaConnect - Elterninitiative Verwaltung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-indigo-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-500 p-2 rounded-lg">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">KitaConnect</h1>
+                        <p class="text-sm text-gray-600">Elterninitiative "Sonnenschein"</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="notificationBtn" class="bg-yellow-100 p-2 rounded-full hover:bg-yellow-200 transition-colors relative">
+                            <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                            </svg>
+                            <span id="notificationCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-900">Sarah Müller</p>
+                        <p class="text-xs text-gray-600">Elternbeirat</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8 overflow-x-auto">
+                <button class="nav-btn py-4 px-2 border-b-2 border-indigo-500 text-indigo-600 font-medium whitespace-nowrap" data-section="dashboard">
+                    📊 Dashboard
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium whitespace-nowrap" data-section="children">
+                    👶 Kinder
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium whitespace-nowrap" data-section="parents">
+                    👨‍👩‍👧‍👦 Eltern
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium whitespace-nowrap" data-section="schedule">
+                    📅 Dienstplan
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium whitespace-nowrap" data-section="finances">
+                    💰 Finanzen
+                </button>
+                <button class="nav-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium whitespace-nowrap" data-section="communication">
+                    💬 Kommunikation
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
+                <p class="text-gray-600">Überblick über eure Kita-Initiative</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Angemeldete Kinder</p>
+                            <p class="text-3xl font-bold text-green-600">24</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Aktive Eltern</p>
+                            <p class="text-3xl font-bold text-blue-600">18</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Offene Dienste</p>
+                            <p class="text-3xl font-bold text-yellow-600">7</p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Monatsbudget</p>
+                            <p class="text-3xl font-bold text-purple-600">€2.840</p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities & Upcoming Events -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">📋 Aktuelle Aufgaben</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
+                            <div class="flex-1">
+                                <p class="font-medium text-red-800">Küchendienst diese Woche</p>
+                                <p class="text-sm text-red-600">Familie Schmidt fehlt noch</p>
+                            </div>
+                            <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Dringend</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                            <div class="flex-1">
+                                <p class="font-medium text-yellow-800">Elternabend vorbereiten</p>
+                                <p class="text-sm text-yellow-600">Agenda bis Freitag fertigstellen</p>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Bald</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+                            <div class="flex-1">
+                                <p class="font-medium text-green-800">Spielplatz-Renovierung</p>
+                                <p class="text-sm text-green-600">Material bestellt, Termin steht</p>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Läuft</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">📅 Nächste Termine</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                            <div class="bg-indigo-100 p-2 rounded-lg">
+                                <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Elternabend</p>
+                                <p class="text-sm text-gray-600">Donnerstag, 15. Feb • 19:30</p>
+                                <p class="text-xs text-gray-500">Thema: Sommerfest Planung</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                            <div class="bg-green-100 p-2 rounded-lg">
+                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Gesundheitscheck</p>
+                                <p class="text-sm text-gray-600">Freitag, 16. Feb • 10:00</p>
+                                <p class="text-xs text-gray-500">Dr. Weber kommt vorbei</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                            <div class="bg-purple-100 p-2 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Neue Familie</p>
+                                <p class="text-sm text-gray-600">Montag, 19. Feb • 16:00</p>
+                                <p class="text-xs text-gray-500">Familie Weber - Kennenlerntermin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Children Section -->
+        <div id="children" class="section hidden">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Kinder Verwaltung</h2>
+                    <p class="text-gray-600">Übersicht aller angemeldeten Kinder</p>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    + Neues Kind anmelden
+                </button>
+            </div>
+
+            <!-- Children Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="bg-pink-100 p-3 rounded-full">
+                            <span class="text-2xl">👧</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Emma Müller</h3>
+                            <p class="text-sm text-gray-600">4 Jahre • Gruppe Sonnenschein</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Eltern:</span>
+                            <span class="font-medium">Sarah & Michael Müller</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Allergien:</span>
+                            <span class="text-red-600 font-medium">Nüsse</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Anwesenheit:</span>
+                            <span class="text-green-600 font-medium">Mo-Fr</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
+                            Details
+                        </button>
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                            Bearbeiten
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <span class="text-2xl">👦</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Luca Schmidt</h3>
+                            <p class="text-sm text-gray-600">3 Jahre • Gruppe Regenbogen</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Eltern:</span>
+                            <span class="font-medium">Anna & Tom Schmidt</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Allergien:</span>
+                            <span class="text-gray-500">Keine</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Anwesenheit:</span>
+                            <span class="text-green-600 font-medium">Mo-Do</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
+                            Details
+                        </button>
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                            Bearbeiten
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <span class="text-2xl">👧</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Mia Weber</h3>
+                            <p class="text-sm text-gray-600">5 Jahre • Gruppe Sonnenschein</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Eltern:</span>
+                            <span class="font-medium">Lisa & David Weber</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Allergien:</span>
+                            <span class="text-red-600 font-medium">Laktose</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Anwesenheit:</span>
+                            <span class="text-green-600 font-medium">Mo-Fr</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
+                            Details
+                        </button>
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                            Bearbeiten
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parents Section -->
+        <div id="parents" class="section hidden">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Eltern & Familien</h2>
+                    <p class="text-gray-600">Kontakte und Diensteinteilung</p>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    + Familie hinzufügen
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-900">Familien Übersicht</h3>
+                        <div class="flex space-x-2">
+                            <button class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                                Alle aktiv
+                            </button>
+                            <button class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                18 Familien
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Familie</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kinder</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontakt</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nächster Dienst</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-indigo-100 p-2 rounded-full mr-3">
+                                            <span class="text-lg">👨‍👩‍👧</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Familie Müller</div>
+                                            <div class="text-sm text-gray-500">Sarah & Michael</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Emma (4)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div>📧 sarah.mueller@email.de</div>
+                                    <div>📱 0176 123 456 78</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Küchendienst - 20.02</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Aktiv</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                                            <span class="text-lg">👨‍👩‍👦</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Familie Schmidt</div>
+                                            <div class="text-sm text-gray-500">Anna & Tom</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Luca (3)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div>📧 anna.schmidt@email.de</div>
+                                    <div>📱 0177 987 654 32</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Gartendienst - 25.02</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Aktiv</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                            <span class="text-lg">👨‍👩‍👧‍👦</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Familie Weber</div>
+                                            <div class="text-sm text-gray-500">Lisa & David</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Mia (5), Ben (2)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div>📧 lisa.weber@email.de</div>
+                                    <div>📱 0178 555 123 45</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">Putzdienst - 28.02</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Aktiv</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div id="schedule" class="section hidden">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Dienstplan & Termine</h2>
+                    <p class="text-gray-600">Elterndienste und wichtige Termine koordinieren</p>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    + Neuen Dienst eintragen
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Calendar -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900">Februar 2024</h3>
+                        <div class="flex space-x-2">
+                            <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-7 gap-1 mb-4">
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">Mo</div>
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">Di</div>
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">Mi</div>
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">Do</div>
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">Fr</div>
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">Sa</div>
+                        <div class="p-2 text-center text-sm font-medium text-gray-500">So</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-7 gap-1">
+                        <!-- Calendar days -->
+                        <div class="p-2 text-center text-sm text-gray-400">29</div>
+                        <div class="p-2 text-center text-sm text-gray-400">30</div>
+                        <div class="p-2 text-center text-sm text-gray-400">31</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">1</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">2</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">3</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">4</div>
+                        
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">5</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">6</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">7</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">8</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">9</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">10</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">11</div>
+                        
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">12</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">13</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">14</div>
+                        <div class="p-2 text-center text-sm bg-indigo-100 text-indigo-700 rounded font-medium cursor-pointer relative">
+                            15
+                            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full"></div>
+                        </div>
+                        <div class="p-2 text-center text-sm bg-green-100 text-green-700 rounded font-medium cursor-pointer relative">
+                            16
+                            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">17</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">18</div>
+                        
+                        <div class="p-2 text-center text-sm bg-purple-100 text-purple-700 rounded font-medium cursor-pointer relative">
+                            19
+                            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-purple-500 rounded-full"></div>
+                        </div>
+                        <div class="p-2 text-center text-sm bg-yellow-100 text-yellow-700 rounded font-medium cursor-pointer relative">
+                            20
+                            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-yellow-500 rounded-full"></div>
+                        </div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">21</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">22</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">23</div>
+                        <div class="p-2 text-center text-sm hover:bg-gray-100 rounded cursor-pointer">24</div>
+                        <div class="p-2 text-center text-sm bg-blue-100 text-blue-700 rounded font-medium cursor-pointer relative">
+                            25
+                            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Schedule -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Anstehende Dienste</h3>
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-yellow-400 pl-4 py-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-gray-900">Küchendienst</p>
+                                    <p class="text-sm text-gray-600">20. Feb • Familie Müller</p>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Offen</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-l-4 border-blue-400 pl-4 py-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-gray-900">Gartendienst</p>
+                                    <p class="text-sm text-gray-600">25. Feb • Familie Schmidt</p>
+                                </div>
+                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Bestätigt</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-l-4 border-purple-400 pl-4 py-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-gray-900">Putzdienst</p>
+                                    <p class="text-sm text-gray-600">28. Feb • Familie Weber</p>
+                                </div>
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Bestätigt</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-l-4 border-red-400 pl-4 py-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-gray-900">Einkaufsdienst</p>
+                                    <p class="text-sm text-gray-600">1. März • Noch offen</p>
+                                </div>
+                                <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Dringend</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t">
+                        <button class="w-full bg-indigo-100 text-indigo-700 py-2 px-4 rounded-lg font-medium hover:bg-indigo-200 transition-colors">
+                            Für Dienst anmelden
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finances Section -->
+        <div id="finances" class="section hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Finanzen & Budget</h2>
+                <p class="text-gray-600">Transparente Übersicht aller Ein- und Ausgaben</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Einnahmen Februar</h3>
+                    <p class="text-3xl font-bold text-green-600">€3.240</p>
+                    <p class="text-sm text-gray-600 mt-1">Elternbeiträge & Zuschüsse</p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Ausgaben Februar</h3>
+                    <p class="text-3xl font-bold text-red-600">€2.840</p>
+                    <p class="text-sm text-gray-600 mt-1">Laufende Kosten</p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Verfügbar</h3>
+                    <p class="text-3xl font-bold text-blue-600">€400</p>
+                    <p class="text-sm text-gray-600 mt-1">Für Projekte & Notfälle</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Recent Transactions -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Letzte Transaktionen</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-green-100 p-2 rounded-full">
+                                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Elternbeiträge</p>
+                                    <p class="text-sm text-gray-600">15. Feb 2024</p>
+                                </div>
+                            </div>
+                            <span class="text-green-600 font-semibold">+€2.400</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-red-100 p-2 rounded-full">
+                                    <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-10.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 7.414V11a1 1 0 102 0V7.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Lebensmittel</p>
+                                    <p class="text-sm text-gray-600">14. Feb 2024</p>
+                                </div>
+                            </div>
+                            <span class="text-red-600 font-semibold">-€180</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-red-100 p-2 rounded-full">
+                                    <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-10.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 7.414V11a1 1 0 102 0V7.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Spielzeug & Material</p>
+                                    <p class="text-sm text-gray-600">12. Feb 2024</p>
+                                </div>
+                            </div>
+                            <span class="text-red-600 font-semibold">-€95</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-green-100 p-2 rounded-full">
+                                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Stadt Zuschuss</p>
+                                    <p class="text-sm text-gray-600">10. Feb 2024</p>
+                                </div>
+                            </div>
+                            <span class="text-green-600 font-semibold">+€840</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Categories -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Budget Kategorien</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Lebensmittel</span>
+                                <span class="text-sm text-gray-600">€520 / €600</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 87%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Spielzeug & Material</span>
+                                <span class="text-sm text-gray-600">€280 / €400</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Miete & Nebenkosten</span>
+                                <span class="text-sm text-gray-600">€1.200 / €1.200</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Versicherungen</span>
+                                <span class="text-sm text-gray-600">€180 / €200</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Rücklagen</span>
+                                <span class="text-sm text-gray-600">€660 / €440</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-indigo-500 h-2 rounded-full" style="width: 150%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t">
+                        <button class="w-full bg-indigo-100 text-indigo-700 py-2 px-4 rounded-lg font-medium hover:bg-indigo-200 transition-colors">
+                            Ausgabe hinzufügen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Communication Section -->
+        <div id="communication" class="section hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Kommunikation</h2>
+                <p class="text-gray-600">Nachrichten, Ankündigungen und Gruppenchats</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Message Center -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900">Nachrichten</h3>
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            + Neue Nachricht
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        <div class="flex space-x-3 p-4 bg-blue-50 rounded-lg">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <span class="text-sm">👩‍💼</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="font-medium text-gray-900">Sarah Müller (Elternbeirat)</h4>
+                                    <span class="text-xs text-gray-500">vor 2 Std.</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">
+                                    Liebe Eltern, der Elternabend am Donnerstag findet wie geplant um 19:30 statt. 
+                                    Wir besprechen die Planung für das Sommerfest und brauchen noch Helfer für verschiedene Aufgaben.
+                                </p>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full hover:bg-blue-200">
+                                        Antworten
+                                    </button>
+                                    <button class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-200">
+                                        👍 3
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3 p-4 bg-yellow-50 rounded-lg">
+                            <div class="bg-yellow-100 p-2 rounded-full">
+                                <span class="text-sm">⚠️</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="font-medium text-gray-900">System Benachrichtigung</h4>
+                                    <span class="text-xs text-gray-500">vor 4 Std.</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">
+                                    <strong>Küchendienst Erinnerung:</strong> Familie Schmidt, ihr seid diese Woche für den Küchendienst eingeteilt. 
+                                    Bitte bestätigt bis morgen, ob ihr den Termin wahrnehmen könnt.
+                                </p>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full hover:bg-green-200">
+                                        Bestätigen
+                                    </button>
+                                    <button class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full hover:bg-red-200">
+                                        Absagen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3 p-4 bg-green-50 rounded-lg">
+                            <div class="bg-green-100 p-2 rounded-full">
+                                <span class="text-sm">👨‍👩‍👧</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h4 class="font-medium text-gray-900">Familie Weber</h4>
+                                    <span class="text-xs text-gray-500">gestern</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-2">
+                                    Hallo zusammen! Wir haben noch Spielzeug zu Hause, das unsere Kinder nicht mehr brauchen. 
+                                    Falls jemand Interesse hat, können wir es gerne für die Kita spenden. 📸 Fotos im Anhang.
+                                </p>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full hover:bg-blue-200">
+                                        Antworten
+                                    </button>
+                                    <button class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full hover:bg-gray-200">
+                                        ❤️ 5
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="mt-6 pt-4 border-t">
+                        <div class="flex space-x-3">
+                            <input type="text" placeholder="Nachricht schreiben..." 
+                                   class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                                Senden
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Announcements -->
+                <div class="space-y-6">
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Schnellaktionen</h3>
+                        <div class="space-y-3">
+                            <button class="w-full bg-blue-100 text-blue-700 py-3 px-4 rounded-lg font-medium hover:bg-blue-200 transition-colors text-left">
+                                📢 Ankündigung erstellen
+                            </button>
+                            <button class="w-full bg-green-100 text-green-700 py-3 px-4 rounded-lg font-medium hover:bg-green-200 transition-colors text-left">
+                                📅 Termin vorschlagen
+                            </button>
+                            <button class="w-full bg-purple-100 text-purple-700 py-3 px-4 rounded-lg font-medium hover:bg-purple-200 transition-colors text-left">
+                                🗳️ Abstimmung starten
+                            </button>
+                            <button class="w-full bg-yellow-100 text-yellow-700 py-3 px-4 rounded-lg font-medium hover:bg-yellow-200 transition-colors text-left">
+                                🆘 Hilfe suchen
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Active Polls -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Aktuelle Abstimmungen</h3>
+                        <div class="space-y-4">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 mb-2">Sommerfest Datum</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between items-center">
+                                        <span>15. Juni</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-green-500 h-2 rounded-full" style="width: 60%"></div>
+                                            </div>
+                                            <span class="text-xs text-gray-600">12</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span>22. Juni</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-16 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-500 h-2 rounded-full" style="width: 40%"></div>
+                                            </div>
+                                            <span class="text-xs text-gray-600">8</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mt-3 w-full bg-indigo-100 text-indigo-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-indigo-200 transition-colors">
+                                    Abstimmen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Online Status -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Wer ist online?</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Sarah Müller</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Anna Schmidt</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                <span class="text-sm text-gray-700">Lisa Weber</span>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-2">
+                                +15 weitere Eltern
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification Panel -->
+    <div id="notificationPanel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">Benachrichtigungen</h3>
+                <button id="closeNotifications" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 space-y-4">
+            <div class="notification bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-800 font-medium">Küchendienst offen</p>
+                        <p class="text-xs text-red-600 mt-1">Familie Schmidt hat noch nicht bestätigt</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z"/>
+                            <path d="M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-800 font-medium">Neue Nachricht</p>
+                        <p class="text-xs text-blue-600 mt-1">Familie Weber hat eine Nachricht gesendet</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-800 font-medium">Zahlung eingegangen</p>
+                        <p class="text-xs text-green-600 mt-1">Elternbeiträge für Februar vollständig</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+
+    <script>
+        // Navigation functionality
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const sections = document.querySelectorAll('.section');
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetSection = button.getAttribute('data-section');
+                
+                // Update active nav button
+                navButtons.forEach(btn => {
+                    btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                });
+                button.classList.remove('border-transparent', 'text-gray-500');
+                button.classList.add('border-indigo-500', 'text-indigo-600');
+                
+                // Show target section
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(targetSection).classList.remove('hidden');
+                document.getElementById(targetSection).classList.add('fade-in');
+            });
+        });
+
+        // Notification panel functionality
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const closeNotifications = document.getElementById('closeNotifications');
+        const overlay = document.getElementById('overlay');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationPanel.classList.remove('translate-x-full');
+            overlay.classList.remove('hidden');
+        });
+
+        closeNotifications.addEventListener('click', () => {
+            notificationPanel.classList.add('translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            notificationPanel.classList.add('translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Form submissions (prevent page reload)
+        document.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Show success message or handle form data
+            alert('Formular wurde erfolgreich übermittelt!');
+        });
+
+        // Interactive elements
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('button:not(.nav-btn):not(#notificationBtn):not(#closeNotifications)')) {
+                // Add visual feedback for button clicks
+                e.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    e.target.style.transform = 'scale(1)';
+                }, 100);
+            }
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const notificationCount = document.getElementById('notificationCount');
+            const currentCount = parseInt(notificationCount.textContent);
+            if (Math.random() > 0.95) { // 5% chance every second
+                notificationCount.textContent = currentCount + 1;
+                notificationCount.classList.add('animate-pulse');
+                setTimeout(() => {
+                    notificationCount.classList.remove('animate-pulse');
+                }, 1000);
+            }
+        }, 1000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988473f137ebc81d',t:'MTc1OTQxMDc2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
